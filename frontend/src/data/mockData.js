@@ -1,46 +1,34 @@
-export const maintenance = [
-  {id:"MNT-1024",source:"TMS",department:"Engineering",asset:"TRK-2381",type:"Rail Inspection",location:"KM 421/4",due:"2026-09-02",overdue:3,criticality:"CRITICAL",safety:98,trainImpact:88,duration:135,status:"Pending"},
-  {id:"MNT-1192",source:"SMMS",department:"S&T",asset:"SIG-0912",type:"Signal Maintenance",location:"C2/14",due:"2026-09-04",overdue:1,criticality:"HIGH",safety:91,trainImpact:76,duration:90,status:"Pending"},
-  {id:"MNT-1021",source:"TDMS",department:"Traction",asset:"OHE-883",type:"OHE Inspection",location:"KM 419/7",due:"2026-09-05",overdue:0,criticality:"HIGH",safety:72,trainImpact:81,duration:120,status:"Pending"},
-  {id:"MNT-1311",source:"TMS",department:"Engineering",asset:"TRK-2441",type:"Sleeper Renewal",location:"KM 427/2",due:"2026-09-07",overdue:0,criticality:"MEDIUM",safety:67,trainImpact:63,duration:180,status:"Scheduled"},
-  {id:"MNT-1410",source:"SMMS",department:"S&T",asset:"SIG-1102",type:"Relay Test",location:"C4/08",due:"2026-09-08",overdue:0,criticality:"MEDIUM",safety:61,trainImpact:54,duration:75,status:"Pending"},
-  {id:"MNT-1517",source:"TDMS",department:"Traction",asset:"OHE-910",type:"Isolator Service",location:"KM 438/1",due:"2026-09-10",overdue:0,criticality:"LOW",safety:45,trainImpact:39,duration:60,status:"Pending"}
+export const ROLES={
+ admin:{label:"System Administrator",base:"/admin",unit:"System"},
+ engg:{label:"Engineering Planner",base:"/engineering",unit:"Engineering"},
+ trd:{label:"TRD Planner",base:"/trd",unit:"Traction Distribution"},
+ snt:{label:"S&T Planner",base:"/snt",unit:"Signal & Telecom"},
+ control:{label:"Control / Senior Engineer",base:"/control",unit:"Operations Control"},
+ field:{label:"Field User",base:"/field",unit:"Field Execution"}
+};
+export const WORK_STATUSES=["Registered","Validated","Prioritized","Window Proposed","Bundled","Plan Proposed","Approved","Published","Executing","Completion Submitted","Verified","Closed"];
+export const WORKS=[
+{id:"WR-1042",title:"Rail joint renewal",dept:"Engineering",corridor:"PUNE-DADAR",section:"KYN-PNVL",asset:"RJ-2041",criticality:"Critical",risk:92,overdue:12,duration:90,status:"Prioritized",crew:6,preferred:"22:00-01:00",dependencies:[],created:"01 Sep 2026"},
+{id:"WR-1043",title:"OHE insulator replacement",dept:"TRD",corridor:"PUNE-MUM",section:"LNL-PUNE",asset:"OHE-883",criticality:"High",risk:78,overdue:8,duration:75,status:"Window Proposed",crew:5,preferred:"01:00-03:00",dependencies:["WR-1042"],created:"31 Aug 2026"},
+{id:"WR-1044",title:"Signal cable inspection",dept:"S&T",corridor:"PUNE-MUM",section:"PUNE-LNL",asset:"SIG-441",criticality:"Medium",risk:51,overdue:2,duration:60,status:"Registered",crew:4,preferred:"23:00-01:00",dependencies:[],created:"01 Sep 2026"},
+{id:"WR-1045",title:"Track geometry correction",dept:"Engineering",corridor:"PUNE-SOL",section:"PUNE-SSI",asset:"TRK-721",criticality:"High",risk:84,overdue:17,duration:120,status:"Executing",crew:8,preferred:"00:00-02:00",dependencies:[],created:"28 Aug 2026"},
+{id:"WR-1046",title:"Point machine maintenance",dept:"S&T",corridor:"PUNE-MUM",section:"LNL-PUNE",asset:"PM-119",criticality:"Critical",risk:95,overdue:6,duration:90,status:"Completion Submitted",crew:3,preferred:"02:00-03:30",dependencies:[],created:"27 Aug 2026"},
+{id:"WR-1047",title:"OHE mast foundation inspection",dept:"TRD",corridor:"PUNE-SOL",section:"PUNE-SSI",asset:"OHE-M55",criticality:"Low",risk:33,overdue:0,duration:45,status:"Validated",crew:3,preferred:"12:00-13:00",dependencies:[],created:"01 Sep 2026"},
+{id:"WR-1048",title:"Rail fracture ultrasonic inspection",dept:"Engineering",corridor:"MUM-PUNE",section:"KJT-PUNE",asset:"RAIL-09",criticality:"Critical",risk:98,overdue:1,duration:60,status:"Plan Proposed",crew:5,preferred:"03:00-04:00",dependencies:[],created:"01 Sep 2026"}
 ];
-
-export const corridors = [
-  {id:"C1",name:"Pune–Lonavala",section:"PUN-LNL",availability:94,blocks:12,trainDensity:"High",status:"Normal"},
-  {id:"C2",name:"Pune–Daund",section:"PUN-DD",availability:81,blocks:19,trainDensity:"Very High",status:"Warning"},
-  {id:"C3",name:"Daund–Solapur",section:"DD-SUR",availability:97,blocks:7,trainDensity:"Medium",status:"Normal"},
-  {id:"C4",name:"Pune–Miraj",section:"PUN-MRJ",availability:72,blocks:21,trainDensity:"High",status:"Critical"}
+export const PLANS=[
+{id:"BP-2026-091",date:"03 Sep 2026",window:"00:00–02:00",corridor:"PUNE-SOL",section:"PUNE-SSI",status:"Proposed",departments:["Engineering","TRD"],works:["WR-1045","WR-1047"],score:91,impact:"Low",conflicts:0},
+{id:"BP-2026-092",date:"04 Sep 2026",window:"02:00–04:00",corridor:"PUNE-MUM",section:"LNL-PUNE",status:"Awaiting Approval",departments:["TRD","S&T"],works:["WR-1043","WR-1046"],score:96,impact:"Medium",conflicts:0},
+{id:"BP-2026-093",date:"05 Sep 2026",window:"23:00–01:00",corridor:"KYN-PNVL",section:"KYN-PNVL",status:"Published",departments:["Engineering"],works:["WR-1042"],score:82,impact:"Low",conflicts:0}
 ];
-
-export const trains = [
-  {id:"12025",type:"Passenger",corridor:"C1",time:"06:25",priority:"HIGH"},
-  {id:"G-204",type:"Goods",corridor:"C2",time:"07:10",priority:"MEDIUM"},
-  {id:"11030",type:"Passenger",corridor:"C2",time:"07:45",priority:"HIGH"},
-  {id:"G-311",type:"Goods",corridor:"C2",time:"08:20",priority:"MEDIUM"},
-  {id:"12127",type:"Passenger",corridor:"C3",time:"09:15",priority:"HIGH"},
-  {id:"G-418",type:"Goods",corridor:"C4",time:"10:00",priority:"MEDIUM"},
-  {id:"11010",type:"Passenger",corridor:"C2",time:"10:45",priority:"HIGH"},
-  {id:"G-502",type:"Goods",corridor:"C1",time:"11:25",priority:"MEDIUM"}
+export const TRAINS=[
+{id:"12124",name:"Deccan Queen",type:"Express",corridor:"PUNE-MUM",eta:"07:25",risk:"Normal"},
+{id:"11010",name:"Sinhagad Express",type:"Express",corridor:"PUNE-MUM",eta:"08:10",risk:"Block conflict"},
+{id:"22150",name:"Pune-Mumbai SF",type:"Superfast",corridor:"PUNE-MUM",eta:"09:00",risk:"Normal"},
+{id:"11418",name:"Pune-Solapur",type:"Passenger",corridor:"PUNE-SOL",eta:"09:35",risk:"Normal"}
 ];
-
-export const plans = [
-  {id:"BP-2026-091",date:"2026-09-02",corridor:"C2",start:"09:00",end:"11:15",tasks:5,departments:["Engineering","S&T","Traction"],status:"Pending Approval",conflicts:0,safety:"Passed"},
-  {id:"BP-2026-092",date:"2026-09-03",corridor:"C1",start:"10:30",end:"12:00",tasks:3,departments:["Engineering","S&T"],status:"Approved",conflicts:0,safety:"Passed"},
-  {id:"BP-2026-093",date:"2026-09-04",corridor:"C4",start:"12:30",end:"15:00",tasks:4,departments:["Engineering","Traction"],status:"Draft",conflicts:1,safety:"Review"}
-];
-
-export const assets = [
-  {id:"TRK-2381",type:"Track",department:"Engineering",location:"KM 421/4",health:82,availability:96.4,downtime:18,defects:2,criticality:"HIGH"},
-  {id:"SIG-0912",type:"Signal",department:"S&T",location:"C2/14",health:76,availability:94.1,downtime:24,defects:1,criticality:"HIGH"},
-  {id:"OHE-883",type:"OHE",department:"Traction",location:"KM 419/7",health:88,availability:97.2,downtime:11,defects:1,criticality:"MEDIUM"},
-  {id:"TRK-2441",type:"Track",department:"Engineering",location:"KM 427/2",health:91,availability:98.1,downtime:7,defects:0,criticality:"MEDIUM"}
-];
-
-export const integrations = [
-  {name:"TMS",full:"Track Management System",records:4821,defects:183,overdue:41,lastSync:"09:12",status:"Connected"},
-  {name:"SMMS",full:"Signalling Maintenance & Management System",records:2143,defects:76,overdue:18,lastSync:"09:10",status:"Connected"},
-  {name:"TDMS",full:"Traction Distribution Management System",records:1874,defects:54,overdue:13,lastSync:"09:08",status:"Connected"},
-  {name:"COA",full:"Control Office Application",records:9302,defects:0,overdue:0,lastSync:"09:15",status:"Connected"}
+export const ALERTS=[
+{level:"Critical",title:"Critical defect approaching SLA",detail:"WR-1048 requires a feasible block within 24 hours."},
+{level:"Warning",title:"Integrated opportunity found",detail:"WR-1043 and WR-1046 share the LNL-PUNE section."},
+{level:"Info",title:"Completion evidence awaiting review",detail:"WR-1046 has 4 photos and supervisor notes submitted."}
 ];

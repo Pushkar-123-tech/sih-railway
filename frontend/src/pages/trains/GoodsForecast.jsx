@@ -1,3 +1,0 @@
-import PageHeader from "../../components/common/PageHeader";
-const data=[["C1","8","Medium","12%"],["C2","17","Very High","28%"],["C3","6","Low","8%"],["C4","13","High","21%"]];
-export default function GoodsForecast(){return <div><PageHeader title="Goods Train Forecast" subtitle="Forecast demand is treated as a corridor availability constraint."/><div className="grid-4">{data.map(x=><div className="card" key={x[0]}><span className="eyebrow">CORRIDOR {x[0]}</span><div className="metric-big">{x[1]}<small>forecast trains</small></div><b>{x[2]} demand</b><p className="muted">Expected corridor occupancy {x[3]}</p></div>)}</div></div>;}

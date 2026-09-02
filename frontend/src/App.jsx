@@ -1,59 +1,50 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
-import AppLayout from "./components/layout/AppLayout";
+import React,{useState} from "react";
+import {Navigate,Route,Routes,useNavigate,useLocation} from "react-router-dom";
+import {ROLES} from "./data/mockData";
+import {readText} from "./utils/storage";
 import Login from "./pages/auth/Login";
-import Dashboard from "./pages/dashboard/Dashboard";
-import Maintenance from "./pages/maintenance/Maintenance";
-import Defects from "./pages/maintenance/Defects";
-import Corridors from "./pages/corridor/Corridors";
-import BlockAvailability from "./pages/corridor/BlockAvailability";
-import TrainSchedule from "./pages/trains/TrainSchedule";
-import GoodsForecast from "./pages/trains/GoodsForecast";
-import CreatePlan from "./pages/planning/CreatePlan";
-import Optimization from "./pages/planning/Optimization";
-import WeeklyPlans from "./pages/plans/WeeklyPlans";
-import MonthlyPlans from "./pages/plans/MonthlyPlans";
-import PlanDetails from "./pages/plans/PlanDetails";
-import Integrations from "./pages/integrations/Integrations";
-import SafetyValidation from "./pages/safety/SafetyValidation";
-import Assets from "./pages/assets/Assets";
-import Analytics from "./pages/analytics/Analytics";
-import Users from "./pages/settings/Users";
-import Settings from "./pages/settings/Settings";
-import Unauthorized from "./pages/auth/Unauthorized";
-
-export default function App() {
-  return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/maintenance/defects" element={<Defects />} />
-            <Route path="/corridors" element={<Corridors />} />
-            <Route path="/corridors/availability" element={<BlockAvailability />} />
-            <Route path="/trains" element={<TrainSchedule />} />
-            <Route path="/trains/goods" element={<GoodsForecast />} />
-            <Route path="/planning/create" element={<CreatePlan />} />
-            <Route path="/planning/optimization" element={<Optimization />} />
-            <Route path="/plans/weekly" element={<WeeklyPlans />} />
-            <Route path="/plans/monthly" element={<MonthlyPlans />} />
-            <Route path="/plans/:id" element={<PlanDetails />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/safety" element={<SafetyValidation />} />
-            <Route path="/assets" element={<Assets />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/settings/users" element={<Users />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </AuthProvider>
-  );
+import AppShell from "./components/layout/AppShell";
+import Dashboard from "./pages/shared/Dashboard";
+import WorkBank from "./pages/shared/WorkBank";
+import WorkRegistration from "./pages/shared/WorkRegistration";
+import WorkDetails from "./pages/shared/WorkDetails";
+import PlanningWorkspace from "./pages/control/PlanningWorkspace";
+import CandidateWindows from "./pages/control/CandidateWindows";
+import Approvals from "./pages/control/Approvals";
+import SafetyReview from "./pages/control/SafetyReview";
+import Execution from "./pages/field/Execution";
+import CompletionVerification from "./pages/control/CompletionVerification";
+import Analytics from "./pages/shared/Analytics";
+import Admin from "./pages/admin/Admin";
+import DepartmentPlanning from "./pages/shared/DepartmentPlanning";
+import NotFound from "./pages/auth/NotFound";
+import UserManual from "./pages/auth/UserManual";
+const DEMO="railplan_role";
+const roleFor=(path)=>Object.entries(ROLES).find(([,r])=>path.startsWith(r.base))?.[0];
+function Protected({role,children}){const current=readText(DEMO,"");return current===role?children:<Navigate to="/login" replace/>}
+function RoleRoutes({role}){
+ const base=ROLES[role].base;
+ return <Route element={<Protected role={role}><AppShell role={role}/></Protected>}>
+  <Route path={base} element={<Navigate to={`${base}/dashboard`} replace/>}/>
+  <Route path={`${base}/dashboard`} element={<Dashboard role={role}/>}/>
+  <Route path={`${base}/work-bank`} element={<WorkBank role={role}/>}/>
+  <Route path={`${base}/register-work`} element={<WorkRegistration role={role}/>}/>
+  <Route path={`${base}/work/:id`} element={<WorkDetails role={role}/>}/>
+  <Route path={`${base}/planning`} element={role==="control"?<PlanningWorkspace/>:<DepartmentPlanning role={role}/>}/>
+  <Route path={`${base}/candidate-windows`} element={<CandidateWindows role={role}/>}/>
+  <Route path={`${base}/safety-review`} element={<SafetyReview role={role}/>}/>
+  <Route path={`${base}/approvals`} element={<Approvals/>}/>
+  <Route path={`${base}/execution`} element={<Execution role={role}/>}/>
+  <Route path={`${base}/completion-verification`} element={<CompletionVerification/>}/>
+  <Route path={`${base}/analytics`} element={<Analytics role={role}/>}/>
+  <Route path={`${base}/admin`} element={<Admin/>}/>
+ </Route>
+}
+export default function App(){
+ return <Routes>
+  <Route path="/login" element={<Login/>}/>
+  <Route path="/manual" element={<UserManual/>}/>
+  {Object.keys(ROLES).map(r=><React.Fragment key={r}>{RoleRoutes({role:r})}</React.Fragment>)}
+  <Route path="/" element={<Navigate to="/login" replace/>}/><Route path="*" element={<NotFound/>}/>
+ </Routes>
 }

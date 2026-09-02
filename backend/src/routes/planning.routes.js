@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import crypto from 'node:crypto';
+import { db, save } from '../db/store.js';
+import { auth, roles } from '../middleware/auth.js';
+import { optimizeBlocks } from '../services/ml.service.js';
+const r=Router(); r.use(auth);
+r.get('/',(req,res)=>res.json(db.data.plans.map(p=>({...p,departments:[...new Set(p.work_ids.map(id=>db.data.works.find(w=>w.work_id===id)?.department).filter(Boolean))]}))));
+r.post('/generate',roles('admin','control'),async(req,res,next)=>{try{const {route,capacity_hours=3,work_ids=[]}=req.body||{}; let candidates=db.data.works.filter(w=>w.route===route && ['Prioritized','Validated','Window Proposed','Plan Proposed'].includes(w.status)); if(work_ids.length)candidates=candidates.filter(w=>work_ids.includes(w.work_id)); const out=await optimizeBlocks({works:candidates,capacity_hours}); if(!out.selected_work_ids?.length)return res.status(422).json({message:'No feasible block combination found'}); const selected=candidates.filter(w=>out.selected_work_ids.includes(w.work_id)); const plan={plan_id:`BP-${new Date().getFullYear()}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`,route,block_start:req.body.block_start||'01:00',block_end:req.body.block_end||'04:00',capacity_hours,used_hours:out.used_hours,score:out.score,status:'Proposed',work_ids:selected.map(w=>w.work_id),explanation:out.explanation,created_at:new Date().toISOString()}; db.data.plans.unshift(plan); selected.forEach(w=>w.status='Plan Proposed'); await save(); res.status(201).json(plan);}catch(e){next(e);}});
+function find(req,res){const p=db.data.plans.find(x=>x.plan_id===req.params.id); if(!p){res.status(404).json({message:'Plan not found'});return null} return p;}
+r.post('/:id/approve',roles('admin','control'),async(req,res)=>{const p=find(req,res);if(!p)return; p.status='Approved';await save();res.json({...p,departments:[...new Set(p.work_ids.map(id=>db.data.works.find(w=>w.work_id===id)?.department).filter(Boolean))]})});
+r.post('/:id/reject',roles('admin','control'),async(req,res)=>{const p=find(req,res);if(!p)return; p.status='Rejected';await save();res.json({...p,departments:[...new Set(p.work_ids.map(id=>db.data.works.find(w=>w.work_id===id)?.department).filter(Boolean))]})});
+r.post('/:id/publish',roles('admin','control'),async(req,res)=>{const p=find(req,res);if(!p)return; p.status='Published'; p.work_ids.forEach(id=>{const w=db.data.works.find(x=>x.work_id===id);if(w)w.status='Published'});await save();res.json({...p,departments:[...new Set(p.work_ids.map(id=>db.data.works.find(w=>w.work_id===id)?.department).filter(Boolean))]})});
+export default r;

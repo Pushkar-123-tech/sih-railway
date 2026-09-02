@@ -1,0 +1,27 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './routes/auth.routes.js';
+import workRoutes from './routes/work.routes.js';
+import mlRoutes from './routes/ml.routes.js';
+import planningRoutes from './routes/planning.routes.js';
+import executionRoutes from './routes/execution.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
+import { seed } from './db/seed.js';
+import { notFound, errorHandler } from './middleware/errorHandler.js';
+
+if(!process.env.JWT_SECRET) process.env.JWT_SECRET='railplan-dev-secret-change-me';
+await seed();
+const app=express();
+app.use(cors({origin:process.env.CORS_ORIGIN||'http://localhost:5173'}));
+app.use(express.json({limit:'2mb'}));
+app.get('/api/health',(req,res)=>res.json({status:'ok',service:'railplan-node-backend',ml_service:process.env.ML_SERVICE_URL||'http://localhost:8001'}));
+app.use('/api/auth',authRoutes);
+app.use('/api/work-items',workRoutes);
+app.use('/api/ml',mlRoutes);
+app.use('/api/plans',planningRoutes);
+app.use('/api/execution',executionRoutes);
+app.use('/api/analytics',analyticsRoutes);
+app.use(notFound); app.use(errorHandler);
+const port=Number(process.env.PORT||5000);
+app.listen(port,()=>console.log(`RailPlan Node backend running on http://localhost:${port}`));

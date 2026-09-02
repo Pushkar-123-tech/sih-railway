@@ -1,51 +1,10 @@
-import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { ShieldCheck, TrainFront, Eye, EyeOff } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-
-export default function Login() {
-  const { user, login, demoUsers } = useAuth();
-  const navigate = useNavigate();
-  const [username, setUsername] = useState("control");
-  const [password, setPassword] = useState("control123");
-  const [show, setShow] = useState(false);
-  const [error, setError] = useState("");
-
-  if (user) return <Navigate to="/dashboard" replace />;
-
-  const submit = e => {
-    e.preventDefault();
-    const result = login(username.trim(), password);
-    if (!result.ok) return setError(result.message);
-    navigate("/dashboard", { replace: true });
-  };
-
-  return (
-    <div className="login-shell">
-      <div className="login-brand">
-        <div className="brand-mark"><TrainFront size={30} /></div>
-        <div>
-          <div className="eyebrow">INDIAN RAILWAYS • SIH26027</div>
-          <h1>Automatic Block Planner</h1>
-          <p>AI-assisted coordinated maintenance block planning</p>
-        </div>
-      </div>
-      <div className="login-card">
-        <div className="login-title">
-          <ShieldCheck size={28} />
-          <div><h2>Secure Login</h2><span>Sign in with your operational role</span></div>
-        </div>
-        <form onSubmit={submit}>
-          <label>Username<input value={username} onChange={e => setUsername(e.target.value)} /></label>
-          <label>Password<div className="password-wrap"><input type={show ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} /> <button type="button" onClick={() => setShow(!show)}>{show ? <EyeOff size={18}/> : <Eye size={18}/>}</button></div></label>
-          {error && <div className="alert danger">{error}</div>}
-          <button className="primary full" type="submit">Sign in</button>
-        </form>
-        <div className="demo-box">
-          <strong>Demo accounts</strong>
-          {demoUsers.map(u => <button key={u.username} onClick={() => { setUsername(u.username); setPassword(u.password); }}>{u.username} · {u.role}</button>)}
-        </div>
-      </div>
-    </div>
-  );
-}
+import React,{useState} from "react"; import {useNavigate,Link} from "react-router-dom"; import {TrainFront,ShieldCheck,ArrowRight} from "lucide-react"; import {ROLES} from "../../data/mockData";
+import {removeStorage} from "../../utils/storage";
+import {api} from "../../api/client";
+export default function Login(){const nav=useNavigate();const [role,setRole]=useState("engg");const [busy,setBusy]=useState(false);
+const submit=async e=>{e.preventDefault();setBusy(true);try{const result=await api.login(role);localStorage.setItem("railplan_role",result.user.role);localStorage.setItem("railplan_token",result.access_token);nav(ROLES[role].base+"/dashboard")}catch(err){console.error(err);alert(err.message || 'Unable to connect to backend. Start the Node.js backend and ML service first.')}finally{setBusy(false)}};
+return <div className="login-page"><div className="login-brand"><div className="logo"><TrainFront/></div><div><b>RAILPLAN</b><span>AI-POWERED AUTOMATIC BLOCK PLANNING · SIH26027</span></div></div>
+<div className="login-card"><div className="login-copy"><span className="eyebrow">SECURE OPERATIONS WORKSPACE</span><h1>Sign in to RailPlan</h1><p>Role-aware planning, approval and field execution prototype for railway maintenance blocks.</p></div>
+<div className="role-grid">{Object.entries(ROLES).map(([k,v])=><button className={"role-card "+(role===k?"selected":"")} onClick={()=>setRole(k)} key={k}><div className="role-icon">{v.label[0]}</div><div><strong>{v.label}</strong><span>{v.unit}</span></div><span className="radio">{role===k?"✓":""}</span></button>)}</div>
+<form onSubmit={submit}><label>Demo identity<input defaultValue={ROLES[role].label+" · Demo User"} readOnly/></label><button className="primary" disabled={busy}>{busy?"Opening workspace":"Continue to workspace"} <ArrowRight size={17}/></button></form>
+<div className="login-note"><ShieldCheck size={15}/> Connected mode · Node.js + ML API + database + optimizer</div><button type="button" className="manual-link" onClick={()=>{removeStorage("railplan-demo-v3");removeStorage("railplan-demo-v7");alert("Demo data reset. Sample data will reload on the next workspace visit.")}}>Reset sample data</button><Link className="manual-link" to="/manual">Open User Manual →</Link></div><div className="login-footer">SIH26027 · Ministry of Railways · Decision-support prototype</div></div>}
