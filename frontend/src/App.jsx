@@ -28,7 +28,7 @@ function RoleRoutes({role}){
   <Route path={base} element={<Navigate to={`${base}/dashboard`} replace/>}/>
   <Route path={`${base}/dashboard`} element={<Dashboard role={role}/>}/>
   <Route path={`${base}/work-bank`} element={<WorkBank role={role}/>}/>
-  <Route path={`${base}/register-work`} element={<WorkRegistration role={role}/>}/>
+    <Route path={`${base}/register-work`} element={role==="field"?<Navigate to={`${base}/dashboard`} replace/>:<WorkRegistration role={role}/>}/>
   <Route path={`${base}/work/:id`} element={<WorkDetails role={role}/>}/>
   <Route path={`${base}/planning`} element={role==="control"?<PlanningWorkspace/>:<DepartmentPlanning role={role}/>}/>
   <Route path={`${base}/candidate-windows`} element={<CandidateWindows role={role}/>}/>

@@ -25,5 +25,13 @@ export async function seed(){
     db.data.plans.push({plan_id:'BP-2026-092',route:'PUNE-MUM',block_start:'02:00',block_end:'04:00',capacity_hours:2,used_hours:1.8,score:96,status:'Awaiting Approval',work_ids:['WR-1046','WR-1043'],explanation:'High criticality integrated candidate awaiting Control approval.'});
     db.data.plans.push({plan_id:'BP-2026-093',route:'KYN-PNVL',block_start:'01:30',block_end:'03:30',capacity_hours:2,used_hours:1.5,score:82,status:'Published',work_ids:['WR-1048'],explanation:'Published maintenance possession.'});
   }
+  for(const plan of db.data.plans.filter(p=>p.status==='Published')){
+    for(const id of plan.work_ids||[]){
+      const work=db.data.works.find(w=>w.work_id===id);
+      if(work && !work.assigned_to){
+        work.assigned_to='demo-field'; work.assigned_to_name='Field User'; work.scheduled_date=plan.block_date||new Date(Date.now()+86400000).toISOString().slice(0,10); work.scheduled_start=plan.block_start; work.scheduled_end=plan.block_end; work.duration_limit_minutes=Math.max(1,Math.round((work.predicted_duration_hours||1)*60)); work.allocated_asset=work.asset_type;
+      }
+    }
+  }
   await save();
 }
