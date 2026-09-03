@@ -93,7 +93,7 @@ export function useAppStore() {
     try {
       let result;
       if (patch.status === "Executing") result = await api.startExecution(id);
-      else if (patch.status === "Completion Submitted") result = await api.completeExecution(id, { notes: "Completion submitted from execution board", actual_duration_minutes: patch.actual_duration_minutes || null });
+      else if (patch.status === "Completion Submitted") result = await api.completeExecution(id, { notes: patch.notes || "Completion submitted from execution board", actual_duration_minutes: patch.actual_duration_minutes || null, evidence: patch.evidence || [] });
       else if (patch.status === "Verified") result = await api.verifyCompletion(id, { approved: true, notes: "Verified by Control" });
       else result = await api.updateWork(id, patch);
 

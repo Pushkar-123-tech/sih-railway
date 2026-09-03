@@ -33,5 +33,9 @@ export async function seed(){
       }
     }
   }
+  const sampleUsers=db.data.users.map(({id,display_name,role})=>({id,display_name,role}));
+  db.data.works.forEach((work,index)=>{
+    if(!work.assigned_users?.length) work.assigned_users=[sampleUsers[index%sampleUsers.length]];
+  });
   await save();
 }
